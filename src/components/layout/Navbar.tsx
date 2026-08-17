@@ -8,6 +8,7 @@ import { navItems } from "@/data/portfolio";
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeId, setActiveId] = useState("home");
+  const navRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
 
@@ -48,14 +49,22 @@ export function Navbar() {
       if (window.innerWidth > 820) setIsOpen(false);
     };
 
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !navRef.current?.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
+    document.addEventListener("pointerdown", onPointerDown);
 
     return () => {
       window.cancelAnimationFrame(focusFrame);
       document.body.classList.remove("nav-open");
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("resize", onResize);
+      document.removeEventListener("pointerdown", onPointerDown);
     };
   }, [isOpen]);
 
@@ -63,7 +72,7 @@ export function Navbar() {
 
   return (
     <header className="site-header">
-      <nav className="glass-nav" aria-label="Primary navigation">
+      <nav ref={navRef} className="glass-nav" data-open={isOpen} aria-label="Primary navigation">
         <a className="brand-link" href="#home" aria-label="Amanda Changa, home" onClick={closeMenu}>
           <Image
             src="/brand/ac-logo-white.svg"
@@ -127,12 +136,19 @@ export function Navbar() {
                 </li>
               );
             })}
+            <li className="mobile-hire-item">
+              <a
+                className="mobile-nav-hire"
+                href="#contact"
+                tabIndex={isOpen ? 0 : -1}
+                onClick={closeMenu}
+              >
+                Hire me
+              </a>
+            </li>
           </ul>
         </div>
       </nav>
-      {isOpen ? (
-        <button className="nav-scrim" type="button" aria-label="Close navigation menu" onClick={closeMenu} />
-      ) : null}
     </header>
   );
 }

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowRight, Download } from "lucide-react";
+import { Download } from "lucide-react";
 import { GlassButton } from "@/components/ui/GlassButton";
 import { GlassSection } from "@/components/ui/GlassSection";
 import { siteConfig } from "@/lib/site-config";
@@ -16,11 +16,9 @@ export function Hero() {
           with React, Next.js, TypeScript, Node.js, and AI-assisted workflows.
         </p>
         <div className="hero-actions">
-          <GlassButton href="#projects">
-            View projects <ArrowRight aria-hidden="true" />
-          </GlassButton>
+          <GlassButton href="#projects">View projects</GlassButton>
           <GlassButton href={siteConfig.resume} download>
-            Download résumé <Download aria-hidden="true" />
+            <Download aria-hidden="true" /> Resume
           </GlassButton>
         </div>
       </div>

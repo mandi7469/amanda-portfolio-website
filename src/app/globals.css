@@ -2,8 +2,7 @@
 
 :root {
   --page-bg: #0a0a0a;
-  --glass-bg: rgba(8, 10, 16, 0.56);
-  --glass-bg-strong: rgba(8, 10, 16, 0.72);
+  --glass-bg: rgba(8, 10, 16, 0.45);
   --glass-card: rgba(255, 255, 255, 0.035);
   --glass-border: rgba(255, 255, 255, 0.22);
   --glass-border-soft: rgba(255, 255, 255, 0.14);
@@ -121,13 +120,6 @@ video {
   pointer-events: none;
 }
 
-.background-scrim {
-  position: absolute;
-  inset: 0;
-  background: rgba(2, 4, 9, 0.18);
-  pointer-events: none;
-}
-
 .site-header {
   position: fixed;
   top: 18px;
@@ -175,7 +167,7 @@ video {
   border-radius: 28px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.025)),
-    var(--glass-bg-strong);
+    var(--glass-bg);
 }
 
 .brand-link,
@@ -197,7 +189,7 @@ video {
 
 .brand-link img {
   width: 56px;
-  height: 42px;
+  height: auto;
 }
 
 .desktop-nav-list {
@@ -214,31 +206,32 @@ video {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+  padding: 0 10px;
   color: var(--text-secondary);
+  border-radius: 12px;
   font-size: 0.94rem;
   font-weight: 530;
-  transition: color 180ms ease;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    text-shadow 180ms ease;
 }
 
-.desktop-nav-list a::after {
-  content: "";
-  position: absolute;
-  right: 22%;
-  bottom: 4px;
-  left: 22%;
-  height: 1px;
-  background: #ffffff;
-  transform: scaleX(0);
-  transition: transform 180ms ease;
+.desktop-nav-list a:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.07);
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.28);
 }
 
-.desktop-nav-list a:hover,
 .desktop-nav-list a[aria-current="page"] {
-  color: var(--text);
-}
-
-.desktop-nav-list a[aria-current="page"]::after {
-  transform: scaleX(1);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 8px 24px rgba(0, 0, 0, 0.12);
+  font-weight: 620;
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.36);
 }
 
 .nav-actions {
@@ -277,6 +270,7 @@ video {
   display: none;
   width: 46px;
   padding: 0;
+  border: 0;
   border-radius: 14px;
   cursor: pointer;
 }
@@ -289,21 +283,38 @@ video {
 
 .mobile-nav-panel {
   position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  left: 0;
-  display: none;
+  top: calc(100% - 1px);
+  right: -1px;
+  left: -1px;
+  visibility: hidden;
   padding: 10px;
   border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  background: rgba(8, 10, 16, 0.92);
-  -webkit-backdrop-filter: blur(28px);
-  backdrop-filter: blur(28px);
-  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.52), inset 0 1px 0 var(--glass-highlight);
+  border-top: 0;
+  border-radius: 0 0 28px 28px;
+  opacity: 0;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.018) 44%, rgba(255, 255, 255, 0.045)),
+    var(--glass-bg);
+  -webkit-backdrop-filter: blur(24px) saturate(128%) brightness(1.02);
+  backdrop-filter: blur(24px) saturate(128%) brightness(1.02);
+  box-shadow:
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 24px 70px var(--glass-shadow);
+  transform: translateY(-8px);
+  transform-origin: top;
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 0s linear 180ms;
 }
 
 .mobile-nav-panel[data-open="true"] {
-  display: block;
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition-delay: 0s;
 }
 
 .mobile-nav-panel ul {
@@ -313,29 +324,54 @@ video {
 }
 
 .mobile-nav-panel a {
+  position: relative;
   display: flex;
   align-items: center;
   min-height: 52px;
   padding: 0 18px;
   color: var(--text-secondary);
-  border: 1px solid transparent;
   border-radius: 14px;
+  font-size: 0.94rem;
+  font-weight: 530;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    text-shadow 180ms ease;
 }
 
-.mobile-nav-panel a:hover,
+.mobile-nav-panel a:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.07);
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.28);
+}
+
 .mobile-nav-panel a[aria-current="page"] {
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.055);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  font-weight: 620;
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.36);
 }
 
-.nav-scrim {
-  position: fixed;
-  inset: -18px -50vw 0;
-  z-index: -1;
-  border: 0;
-  background: rgba(0, 0, 0, 0.42);
-  cursor: default;
+.mobile-hire-item {
+  padding-top: 10px;
+  margin-top: 8px;
+}
+
+.mobile-nav-panel .mobile-nav-hire {
+  justify-content: center;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+  font-weight: 620;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.mobile-nav-panel .mobile-nav-hire:hover {
+  border-color: rgba(255, 255, 255, 0.74);
+  background: rgba(255, 255, 255, 0.095);
 }
 
 .site-shell {
@@ -861,7 +897,7 @@ video {
   padding-bottom: 28px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.014)),
-    rgba(8, 10, 16, 0.75);
+    var(--glass-bg);
 }
 
 .footer-primary {
@@ -977,6 +1013,7 @@ video {
   }
 
   .glass-nav {
+    overflow: hidden;
     min-height: var(--nav-height);
     grid-template-columns: 1fr auto;
     padding: 6px 8px 6px 14px;
@@ -987,13 +1024,42 @@ video {
   }
 
   .nav-hire {
-    min-width: 94px;
-    min-height: 46px;
-    padding: 0 16px;
+    display: none;
   }
 
   .menu-toggle {
     display: inline-flex;
+  }
+
+  .mobile-nav-panel {
+    position: static;
+    grid-column: 1 / -1;
+    width: auto;
+    max-height: 0;
+    margin: 6px -8px -6px -14px;
+    padding: 0 10px;
+    overflow: hidden;
+    border: 0;
+    border-top: 1px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    transform: none;
+    transition:
+      max-height 180ms ease,
+      padding 180ms ease,
+      opacity 180ms ease,
+      border-color 180ms ease,
+      visibility 0s linear 180ms;
+  }
+
+  .mobile-nav-panel[data-open="true"] {
+    max-height: 430px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-top-color: var(--glass-border-soft);
   }
 
   .site-shell {
@@ -1150,11 +1216,6 @@ video {
 }
 
 @media (max-width: 360px) {
-  .nav-hire {
-    min-width: 82px;
-    padding: 0 12px;
-  }
-
   .glass-section {
     padding-right: 17px;
     padding-left: 17px;

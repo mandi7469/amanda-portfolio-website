@@ -22,7 +22,6 @@ export function BackgroundVideo() {
         />
         <source src="/media/smoke-desktop.mp4" type="video/mp4" />
       </video>
-      <div className="background-scrim" />
     </div>
   );
 }
