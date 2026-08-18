@@ -35,14 +35,14 @@ export const navItems = [
 
 export const skillGroups: readonly SkillGroup[] = [
   {
-    title: "Frontend",
-    items: ["React", "Next.js", "Tailwind CSS", "React Router", "Vite", "Material UI", "Bootstrap"],
-    size: "medium",
-  },
-  {
     title: "Languages",
     items: ["JavaScript", "TypeScript", "HTML", "CSS"],
     size: "small",
+  },
+  {
+    title: "Frontend",
+    items: ["React", "Next.js", "Tailwind CSS", "React Router", "Vite", "Material UI", "Bootstrap"],
+    size: "medium",
   },
   {
     title: "Backend & Data",

@@ -1,3 +1,4 @@
+import { SupportingProjects } from "@/components/sections/SupportingProjects";
 import { GlassSection } from "@/components/ui/GlassSection";
 import { education, experience } from "@/data/portfolio";
 
@@ -47,6 +48,8 @@ export function Experience() {
           ))}
         </aside>
       </div>
+
+      <SupportingProjects />
     </GlassSection>
   );
 }

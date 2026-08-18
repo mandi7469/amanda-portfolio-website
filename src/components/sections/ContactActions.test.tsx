@@ -1,19 +1,31 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
 import { siteConfig } from "@/lib/site-config";
 import { ContactActions } from "./ContactActions";
 
 describe("ContactActions", () => {
-  it("copies the public email and announces success", async () => {
-    const user = userEvent.setup();
-    const writeText = vi.spyOn(navigator.clipboard, "writeText");
+  it("renders the contact destinations and back-to-top link", () => {
     render(<ContactActions />);
 
-    await user.click(screen.getByRole("button", { name: "Copy email address" }));
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Email" })).toHaveAttribute(
+      "href",
+      `mailto:${siteConfig.email}`,
+    );
 
-    expect(writeText).toHaveBeenCalledWith(siteConfig.email);
-    expect(screen.getByRole("button", { name: "Email copied" })).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveTextContent("Email address copied to clipboard.");
+    for (const [name, href] of [
+      [/LinkedIn.*opens in a new tab/, siteConfig.linkedin],
+      [/GitHub.*opens in a new tab/, siteConfig.github],
+    ]) {
+      const link = screen.getByRole("link", { name });
+      expect(link).toHaveAttribute("href", href);
+      expect(link).toHaveAttribute("target", "_blank");
+      expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    }
+
+    expect(screen.getByRole("link", { name: "Resume" })).toHaveAttribute(
+      "href",
+      siteConfig.resume,
+    );
+    expect(screen.getByRole("link", { name: "Back to top" })).toHaveAttribute("href", "#home");
   });
 });

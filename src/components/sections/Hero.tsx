@@ -24,7 +24,7 @@ export function Hero() {
       </div>
       <div className="portrait-frame">
         <Image
-          src="/images/amanda-changa-headshot.webp"
+          src="/images/amanda-changa-headshot-transparent.png"
           alt="Amanda Changa"
           fill
           priority
