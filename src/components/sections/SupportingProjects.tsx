@@ -30,7 +30,7 @@ export function SupportingProjects() {
             <strong>{project.title}</strong>
             <span>{project.role}</span>
           </span>
-          <ArrowUpRight aria-hidden="true" />
+          <ArrowUpRight aria-hidden="true" strokeWidth={2.5} />
           <span className="sr-only">Open project in a new tab</span>
         </a>
       ))}

@@ -10,10 +10,11 @@ describe("portfolio content contracts", () => {
       "#experience",
       "#contact",
     ]);
-    expect(projects).toHaveLength(6);
+    expect(projects).toHaveLength(7);
     expect(projects.filter((project) => project.featured).map((project) => project.title)).toEqual([
-      "League Copilot",
       "Recipe Vault",
+      "Fairway Favorites",
+      "Cosmic Quest",
     ]);
     expect(skillGroups.length).toBeGreaterThanOrEqual(5);
     expect(experience[0].period).toContain("Present");

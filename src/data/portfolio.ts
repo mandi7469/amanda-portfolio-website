@@ -63,25 +63,39 @@ export const skillGroups: readonly SkillGroup[] = [
 
 export const projects: readonly Project[] = [
   {
-    title: "League Copilot",
-    role: "Frontend Developer / UI Contributor",
+    title: "Recipe Vault",
+    role: "Independent",
     description:
-      "Responsive React/TypeScript interfaces across dashboards, navigation, settings, and accessible modal workflows.",
-    image: "/projects/league-copilot.webp",
-    imageAlt: "League Copilot website interface",
-    liveUrl: "https://league-copilot.com",
-    technologies: ["React", "TypeScript", "Vitest"],
+      "Full-stack recipe manager with public browsing, search and filters, secure authentication, and user-owned recipe creation, editing, and deletion.",
+    image: "/projects/recipe-vault.png",
+    imageAlt: "Recipe Vault recipe list displayed on a laptop",
+    liveUrl: "https://recipe-vault-ten.vercel.app/",
+    githubUrl: "https://github.com/mandi7469/recipe-vault",
+    technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "MongoDB", "Auth.js"],
     featured: true,
   },
   {
-    title: "Recipe Vault",
-    role: "Full-Stack Developer",
-    description: "Recipe-management application for browsing, searching, and managing recipes.",
-    image: "/projects/recipe-vault.webp",
-    imageAlt: "Recipe Vault application interface",
-    liveUrl: "https://recipe-vault-ten.vercel.app",
-    githubUrl: "https://github.com/mandi7469/recipe-vault",
-    technologies: ["React", "Next.js", "TypeScript", "Tailwind CSS", "MongoDB"],
+    title: "Fairway Favorites",
+    role: "Independent",
+    description:
+      "Disc golf companion for searching and saving discs, playing a hangman game, tracking rounds, exploring courses, and storing shot videos.",
+    image: "/projects/fairway-favorites.png",
+    imageAlt: "Fairway Favorites disc search displayed on a laptop",
+    liveUrl: "https://fairway-favorites.netlify.app/",
+    githubUrl: "https://github.com/mandi7469/Fairway-Favorites",
+    technologies: ["React", "Vite", "JavaScript", "React Router", "localForage"],
+    featured: true,
+  },
+  {
+    title: "Cosmic Quest",
+    role: "Collaborative",
+    description:
+      "Collaborative MERN text adventure where player choices drive a mission to find the lost Elysium and the Cosmic Heart.",
+    image: "/projects/cosmic-quest.png",
+    imageAlt: "Cosmic Quest login interface displayed on a laptop",
+    liveUrl: "https://cosmic-quest.onrender.com/",
+    githubUrl: "https://github.com/mandi7469/Cosmic-Quest",
+    technologies: ["MongoDB", "Express", "React", "Node.js", "REST APIs"],
     featured: true,
   },
   {
@@ -154,18 +168,5 @@ export const experience: readonly Experience[] = [
     title: "Account Manager",
     organization: "Helbing Law Group",
     primary: false,
-  },
-] as const;
-
-export const education = [
-  {
-    school: "University of Central Florida",
-    credential: "Certificate, Full-Stack Web Development",
-    year: "2024",
-  },
-  {
-    school: "Barry University",
-    credential: "Bachelor of Arts with a major in Photography",
-    year: "2017",
   },
 ] as const;

@@ -10,10 +10,11 @@ describe("Footer", () => {
     ).toBeInTheDocument();
     expect(screen.getAllByRole("link")).toHaveLength(1);
     expect(container.querySelector("img")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Amanda Changa, back to top" })).toHaveAttribute(
-      "href",
-      "#home",
-    );
+    expect(
+      screen.getByRole("link", {
+        name: /© \d{4} Developed and Designed by Amanda Changa, back to top/,
+      }),
+    ).toHaveAttribute("href", "#home");
     expect(container.querySelector("nav")).not.toBeInTheDocument();
   });
 });
