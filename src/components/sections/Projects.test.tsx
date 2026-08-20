@@ -4,6 +4,20 @@ import { Experience } from "./Experience";
 import { Projects } from "./Projects";
 
 describe("Portfolio project sections", () => {
+  it("uses the supplied screenshots for each supporting project card", () => {
+    expect(
+      projects
+        .filter((project) => !project.featured)
+        .map(({ title, image }) => ({ title, image })),
+    ).toEqual([
+      { title: "BuildMyIO", image: "/projects/buildmyio.png" },
+      { title: "Northstar Contract Supplies", image: "/projects/northstar.png" },
+      { title: "Horizon Energy", image: "/projects/horizonenergy-16x10.png" },
+      { title: "West Coast Electric Sales", image: "/projects/westcoast.png" },
+      { title: "League Copilot", image: "/projects/leaguecopilot-16x10.png" },
+    ]);
+  });
+
   it("omits education from the professional experience section", () => {
     render(<Experience />);
 
@@ -15,7 +29,7 @@ describe("Portfolio project sections", () => {
     const { container } = render(<Experience />);
     const freelanceEntry = screen
       .getByRole("heading", { name: "Freelance Web Developer & Product Designer" })
-      .closest(".timeline-entry");
+      .closest<HTMLElement>(".timeline-entry");
     const freelanceProjects = container.querySelector<HTMLElement>(
       "[aria-label='Freelance website projects']",
     );
@@ -23,6 +37,11 @@ describe("Portfolio project sections", () => {
     expect(freelanceEntry).not.toBeNull();
     expect(freelanceProjects).not.toBeNull();
     expect(freelanceEntry).toContainElement(freelanceProjects);
+    expect(within(freelanceEntry!).getByRole("heading", {
+      level: 4,
+      name: "Selected work:",
+    })).toBeInTheDocument();
+    expect(within(freelanceEntry!).queryByText("Freelance Website")).not.toBeInTheDocument();
   });
 
   it("splits professional experience into two ordered rows", () => {
@@ -37,7 +56,30 @@ describe("Portfolio project sections", () => {
     expect(within(rows[1]).getByRole("heading", {
       name: "Frontend Developer / UI Contributor",
     })).toBeInTheDocument();
+    expect(within(rows[1]).getByLabelText("League Copilot project")).toBeInTheDocument();
+    expect(within(rows[1]).getByRole("link", {
+      name: /League Copilot.*Open project in a new tab/,
+    })).toHaveAttribute("href", "https://league-copilot.com/");
+    expect(within(rows[1]).queryByRole("heading", {
+      level: 4,
+      name: "Selected work:",
+    })).not.toBeInTheDocument();
+    expect(within(rows[0]).queryByLabelText("League Copilot project")).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Earlier experience" })).not.toBeInTheDocument();
+  });
+
+  it("renders each primary job description as an achievement list", () => {
+    const { container } = render(<Experience />);
+    const rows = Array.from(container.querySelectorAll<HTMLElement>("#experience .experience-row"));
+    const freelanceHighlights = within(rows[0]).getAllByRole("listitem");
+    const frontendHighlights = within(rows[1]).getAllByRole("listitem");
+
+    expect(freelanceHighlights).toHaveLength(5);
+    expect(freelanceHighlights[0]).toHaveTextContent("Designed, built, and deployed four production websites");
+    expect(freelanceHighlights[4]).toHaveTextContent("Applied Codex and ChatGPT");
+    expect(frontendHighlights).toHaveLength(3);
+    expect(frontendHighlights[0]).toHaveTextContent("Developed and refined responsive React/TypeScript interfaces");
+    expect(frontendHighlights[2]).toHaveTextContent("Added and maintained Vitest contract tests");
   });
 
   it("renders featured and supporting projects in their intended sections with safe external links", () => {
@@ -49,7 +91,7 @@ describe("Portfolio project sections", () => {
     );
 
     for (const project of projects) {
-      expect(screen.getByText(project.title)).toBeInTheDocument();
+      expect(screen.getAllByText(project.title).length).toBeGreaterThan(0);
       const links = screen.getAllByRole("link").filter((link) => link.getAttribute("href") === project.liveUrl);
       expect(links).toHaveLength(1);
       expect(links[0]).toHaveAttribute("target", "_blank");

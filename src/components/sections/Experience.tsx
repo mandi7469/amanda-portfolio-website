@@ -8,7 +8,7 @@ export function Experience() {
   return (
     <GlassSection id="experience" title="Professional Experience" className="experience-section">
       <div className="timeline experience-rows" aria-label="Development experience timeline">
-        {primaryExperience.map((item, index) => (
+        {primaryExperience.map((item) => (
           <article className="timeline-entry experience-row" key={`${item.period}-${item.title}`}>
             <p className="timeline-period">{item.period}</p>
             <div className="timeline-content">
@@ -17,9 +17,21 @@ export function Experience() {
               <p className="timeline-organization">
                 {item.organization}{item.location ? ` · ${item.location}` : ""}
               </p>
-              {item.summary ? <p>{item.summary}</p> : null}
+              {item.highlights ? (
+                <ul className="timeline-highlights">
+                  {item.highlights.map((highlight) => (
+                    <li key={highlight}>{highlight}</li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
-            {index === 0 ? <SupportingProjects /> : null}
+            {item.projectsLabel ? (
+              <SupportingProjects
+                experienceTitle={item.title}
+                ariaLabel={item.projectsLabel}
+                heading={item.projectsHeading}
+              />
+            ) : null}
           </article>
         ))}
 
