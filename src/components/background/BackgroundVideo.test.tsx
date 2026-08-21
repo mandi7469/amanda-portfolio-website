@@ -10,6 +10,7 @@ describe("BackgroundVideo", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -97,11 +98,40 @@ describe("BackgroundVideo", () => {
     await waitFor(() => expect(video).toHaveAttribute("data-playback-failed", "true"));
   });
 
-  it.each(["error", "stalled"])("reveals the poster when the video emits %s", (eventName) => {
+  it("reveals the poster when the video emits an error", () => {
     const { container } = render(<BackgroundVideo />);
     const video = container.querySelector("video");
 
-    fireEvent(video!, new Event(eventName));
+    fireEvent.error(video!);
+
+    expect(video).toHaveAttribute("data-playback-failed", "true");
+  });
+
+  it("keeps the video visible when playback advances after a transient stall", () => {
+    vi.useFakeTimers();
+    const { container } = render(<BackgroundVideo />);
+    const video = container.querySelector("video")!;
+    video.currentTime = 4;
+
+    fireEvent.stalled(video);
+    expect(video).not.toHaveAttribute("data-playback-failed");
+
+    video.currentTime = 5;
+    act(() => vi.advanceTimersByTime(2_000));
+
+    expect(video).not.toHaveAttribute("data-playback-failed");
+  });
+
+  it("reveals the poster when playback remains stalled", () => {
+    vi.useFakeTimers();
+    const { container } = render(<BackgroundVideo />);
+    const video = container.querySelector("video")!;
+    video.currentTime = 4;
+
+    fireEvent.stalled(video);
+    expect(video).not.toHaveAttribute("data-playback-failed");
+
+    act(() => vi.advanceTimersByTime(2_000));
 
     expect(video).toHaveAttribute("data-playback-failed", "true");
   });
