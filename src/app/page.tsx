@@ -20,9 +20,7 @@ export default function HomePage() {
         <Experience />
         <Contact />
       </main>
-      <div className="footer-shell">
-        <Footer />
-      </div>
+      <Footer />
     </>
   );
 }

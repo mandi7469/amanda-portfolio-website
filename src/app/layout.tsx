@@ -9,9 +9,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/brand/favicon-white-32x32.png", type: "image/png", media: "(prefers-color-scheme: dark)" },
-      { url: "/brand/favicon-black-32x32.png", type: "image/png", media: "(prefers-color-scheme: light)" },
+      { url: "/brand/favicon-light.svg", type: "image/svg+xml", sizes: "48x48", media: "(prefers-color-scheme: light)" },
+      { url: "/brand/favicon-dark.svg", type: "image/svg+xml", sizes: "48x48", media: "(prefers-color-scheme: dark)" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },

@@ -18,4 +18,12 @@ describe("BackgroundVideo", () => {
       "/media/smoke-desktop.mp4",
     ]);
   });
+
+  it("sets a calmer playback speed when the video mounts", () => {
+    const { container } = render(<BackgroundVideo />);
+    const video = container.querySelector("video");
+
+    expect(video).not.toBeNull();
+    expect(video).toHaveProperty("playbackRate", 0.8);
+  });
 });
