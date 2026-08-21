@@ -70,7 +70,7 @@ test("keeps the contact section transparent and its action buttons frosted", asy
     await expect(surface).not.toHaveCSS("border-top-style", "none");
   }
 
-  const backToTop = contact.locator(".contact-copy .contact-back-to-top");
+  const backToTop = contact.locator(".contact-back-to-top");
   await expect(backToTop).toHaveCSS("backdrop-filter", /blur\(18px\)/);
   await expect(backToTop.locator("svg")).toHaveCSS("stroke-width", "2.5px");
 
@@ -83,6 +83,32 @@ test("keeps the contact section transparent and its action buttons frosted", asy
   await expect(firstSurface).toHaveCSS("background-color", "rgba(255, 255, 255, 0.094)");
 });
 
+test("wraps mobile skill squircles after every fourth item", async ({ page }) => {
+  await page.goto("/");
+
+  const frontendSkills = page.locator("#skills .skill-group").filter({ hasText: "Frontend" });
+  const surfaces = frontendSkills.locator(".skill-bubble-surface");
+
+  for (const width of [320, 390, 620, 767]) {
+    await page.setViewportSize({ width, height: 900 });
+
+    const renderedColumns = await frontendSkills.locator(".skill-bubbles").evaluate((grid) =>
+      getComputedStyle(grid).gridTemplateColumns.split(" ").length,
+    );
+    expect(renderedColumns).toBe(4);
+
+    const boxes = await Promise.all(
+      Array.from({ length: 5 }, (_, index) => surfaces.nth(index).boundingBox()),
+    );
+    boxes.forEach((box) => expect(box).not.toBeNull());
+
+    for (const box of boxes.slice(1, 4)) {
+      expect(Math.abs(box!.y - boxes[0]!.y)).toBeLessThanOrEqual(1);
+    }
+    expect(boxes[4]!.y).toBeGreaterThan(boxes[0]!.y + boxes[0]!.height - 1);
+  }
+});
+
 test("lays out contact content in responsive columns and squircle rows", async ({ page }) => {
   await page.goto("/");
 
@@ -90,7 +116,7 @@ test("lays out contact content in responsive columns and squircle rows", async (
   const actions = contact.locator(".contact-actions a");
   const surfaces = contact.locator(".contact-action-surface");
 
-  for (const width of [320, 390, 411, 412, 768, 900, 901, 1024, 1222]) {
+  for (const width of [320, 390, 411, 412, 767, 768, 820, 821, 900, 901, 1024, 1222]) {
     await page.setViewportSize({ width, height: 900 });
     await contact.scrollIntoViewIfNeeded();
     await expect(contact).toHaveCSS("padding-left", "0px");
@@ -118,18 +144,17 @@ test("lays out contact content in responsive columns and squircle rows", async (
     expect(copyBox).not.toBeNull();
     expect(paragraphBox).not.toBeNull();
     expect(backToTopBox).not.toBeNull();
-    if (width >= 412) {
-      expect(Math.abs(emailBox!.y - linkedInBox!.y)).toBeLessThanOrEqual(1);
-      expect(Math.abs(emailBox!.y - githubBox!.y)).toBeLessThanOrEqual(1);
-      expect(Math.abs(emailBox!.y - resumeBox!.y)).toBeLessThanOrEqual(1);
-    } else {
-      expect(Math.abs(emailBox!.y - linkedInBox!.y)).toBeLessThanOrEqual(1);
-      expect(Math.abs(githubBox!.y - resumeBox!.y)).toBeLessThanOrEqual(1);
-      expect(githubBox!.y).toBeGreaterThan(emailBox!.y + emailBox!.height - 1);
-    }
+    expect(Math.abs(emailBox!.y - linkedInBox!.y)).toBeLessThanOrEqual(1);
+    expect(Math.abs(emailBox!.y - githubBox!.y)).toBeLessThanOrEqual(1);
+    expect(Math.abs(emailBox!.y - resumeBox!.y)).toBeLessThanOrEqual(1);
     expect(Math.abs(emailBox!.width - resumeBox!.width)).toBeLessThanOrEqual(1);
-    expect(Math.abs(emailBox!.width - skillSquircleBox!.width)).toBeLessThanOrEqual(1);
-    expect(Math.abs(emailBox!.height - skillSquircleBox!.height)).toBeLessThanOrEqual(1);
+    if (width > 620) {
+      expect(Math.abs(emailBox!.width - skillSquircleBox!.width)).toBeLessThanOrEqual(1);
+      expect(Math.abs(emailBox!.height - skillSquircleBox!.height)).toBeLessThanOrEqual(1);
+    } else {
+      expect(emailBox!.width).toBeLessThanOrEqual(skillSquircleBox!.width);
+      expect(emailBox!.height).toBeLessThanOrEqual(skillSquircleBox!.height);
+    }
     expect(await surfaces.first().evaluate((element) =>
       Number.parseFloat(getComputedStyle(element).borderRadius),
     )).toBeGreaterThanOrEqual(18);
@@ -149,7 +174,7 @@ test("lays out contact content in responsive columns and squircle rows", async (
     }
     expect(backToTopBox!.y).toBeGreaterThan(paragraphBox!.y + paragraphBox!.height - 1);
 
-    if (width >= 901) {
+    if (width >= 768) {
       expect(actionsBox!.x).toBeGreaterThan(copyBox!.x + copyBox!.width - 1);
       await expect(contact.locator(".contact-copy")).toHaveCSS("text-align", "left");
       expect(Math.abs(backToTopBox!.x - copyBox!.x)).toBeLessThanOrEqual(1);
@@ -158,7 +183,8 @@ test("lays out contact content in responsive columns and squircle rows", async (
       for (const box of [paragraphBox!, actionsBox!, backToTopBox!]) {
         expect(Math.abs(box.x + box.width / 2 - sectionCenter)).toBeLessThanOrEqual(1);
       }
-      expect(actionsBox!.y).toBeGreaterThan(backToTopBox!.y + backToTopBox!.height - 1);
+      expect(actionsBox!.y).toBeGreaterThan(paragraphBox!.y + paragraphBox!.height - 1);
+      expect(backToTopBox!.y).toBeGreaterThan(actionsBox!.y + actionsBox!.height - 1);
       await expect(contact.locator(".contact-copy")).toHaveCSS("text-align", "center");
     }
   }
