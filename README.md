@@ -44,5 +44,6 @@ The original video is retained at the project root. Optimized, muted H.264 varia
 - Tablet portrait: approximately 5.8 MB
 - Mobile portrait: approximately 4.2 MB
 - Static WebP poster: approximately 154 KB
+- Landscape Open Graph background derived from the poster: approximately 75 KB
 
 The site is ready for a standard Vercel Next.js deployment, but no production deployment is performed by this repository setup.
