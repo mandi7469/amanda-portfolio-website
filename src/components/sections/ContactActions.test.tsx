@@ -52,16 +52,19 @@ describe("ContactActions", () => {
     ).toHaveAttribute("d", siGithub.path);
   });
 
-  it("groups the back-to-top link with the contact copy", () => {
+  it("places the back-to-top link after the contact actions", () => {
     render(<Contact />);
 
     const heading = screen.getByRole("heading", { name: "Let's work together." });
     const contactCopy = heading.parentElement;
+    const contact = heading.closest("section");
     const backToTop = screen.getByRole("link", { name: "Back to top" });
 
     expect(contactCopy).not.toBeNull();
+    expect(contact).not.toBeNull();
     expect(within(contactCopy!).getByText(/Have a role, project, or product/)).toBeInTheDocument();
-    expect(within(contactCopy!).getByRole("link", { name: "Back to top" })).toBe(backToTop);
+    expect(within(contactCopy!).queryByRole("link", { name: "Back to top" })).not.toBeInTheDocument();
+    expect(contact!.lastElementChild).toBe(backToTop);
     expect(backToTop).toHaveAttribute("href", "#home");
     expect(backToTop.querySelector("svg")).toHaveAttribute("stroke-width", "2.5");
   });
