@@ -122,6 +122,19 @@ describe("BackgroundVideo", () => {
     expect(video).not.toHaveAttribute("data-playback-failed");
   });
 
+  it("keeps the video visible when playback loops during a transient stall", () => {
+    vi.useFakeTimers();
+    const { container } = render(<BackgroundVideo />);
+    const video = container.querySelector("video")!;
+    video.currentTime = 9.8;
+
+    fireEvent.stalled(video);
+    video.currentTime = 0.4;
+    act(() => vi.advanceTimersByTime(2_000));
+
+    expect(video).not.toHaveAttribute("data-playback-failed");
+  });
+
   it("reveals the poster when playback remains stalled", () => {
     vi.useFakeTimers();
     const { container } = render(<BackgroundVideo />);

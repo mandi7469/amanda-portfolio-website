@@ -73,7 +73,8 @@ export function BackgroundVideo() {
     const stalledAt = stalledVideo.currentTime;
     stalledPlaybackTimerRef.current = setTimeout(() => {
       stalledPlaybackTimerRef.current = null;
-      if (videoRef.current !== stalledVideo || stalledVideo.currentTime > stalledAt) return;
+      const playbackProgressed = Math.abs(stalledVideo.currentTime - stalledAt) > 0.01;
+      if (videoRef.current !== stalledVideo || playbackProgressed) return;
 
       playbackAttemptRef.current += 1;
       setPlaybackFailed(true);
