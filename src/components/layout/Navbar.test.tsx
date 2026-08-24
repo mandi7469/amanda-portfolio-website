@@ -3,12 +3,25 @@ import userEvent from "@testing-library/user-event";
 import { Navbar } from "./Navbar";
 
 describe("Navbar", () => {
-  it("opens accessibly and closes with Escape", async () => {
+  it("keeps focus on the menu toggle when opened with a pointer", async () => {
     const user = userEvent.setup();
     render(<Navbar />);
     const toggle = screen.getByRole("button", { name: "Open navigation menu" });
 
     await user.click(toggle);
+
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()));
+    expect(toggle).toHaveFocus();
+  });
+
+  it("moves focus into the menu for keyboard users and returns it on Escape", async () => {
+    const user = userEvent.setup();
+    render(<Navbar />);
+    const toggle = screen.getByRole("button", { name: "Open navigation menu" });
+
+    toggle.focus();
+    await user.keyboard("{Enter}");
 
     expect(toggle).toHaveAttribute("aria-expanded", "true");
     const mobileNavigation = document.getElementById("mobile-navigation");

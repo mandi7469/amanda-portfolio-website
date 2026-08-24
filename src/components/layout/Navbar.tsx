@@ -11,6 +11,7 @@ export function Navbar() {
   const navRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
+  const shouldFocusFirstLinkRef = useRef(false);
 
   useEffect(() => {
     const sections = navItems
@@ -36,7 +37,9 @@ export function Navbar() {
     if (!isOpen) return;
 
     document.body.classList.add("nav-open");
-    const focusFrame = window.requestAnimationFrame(() => firstLinkRef.current?.focus());
+    const focusFrame = shouldFocusFirstLinkRef.current
+      ? window.requestAnimationFrame(() => firstLinkRef.current?.focus())
+      : undefined;
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -60,7 +63,7 @@ export function Navbar() {
     document.addEventListener("pointerdown", onPointerDown);
 
     return () => {
-      window.cancelAnimationFrame(focusFrame);
+      if (focusFrame !== undefined) window.cancelAnimationFrame(focusFrame);
       document.body.classList.remove("nav-open");
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("resize", onResize);
@@ -107,7 +110,10 @@ export function Navbar() {
             aria-expanded={isOpen}
             aria-controls="mobile-navigation"
             aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
-            onClick={() => setIsOpen((open) => !open)}
+            onClick={(event) => {
+              shouldFocusFirstLinkRef.current = event.detail === 0;
+              setIsOpen((open) => !open);
+            }}
           >
             {isOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
           </button>

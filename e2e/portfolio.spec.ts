@@ -616,13 +616,24 @@ test("keeps all interface colors neutral", async ({ page }) => {
   expect(nonNeutralColors).toEqual([]);
 });
 
-test("mobile navigation closes with Escape and returns focus", async ({ page }, testInfo) => {
+test("mobile navigation keeps focus on the toggle when opened with a pointer", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.startsWith("mobile"), "Mobile interaction contract");
   await page.goto("/");
 
   const toggle = page.locator(".menu-toggle");
   await expect(toggle).toHaveAccessibleName("Open navigation menu");
   await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(toggle).toBeFocused();
+});
+
+test("mobile navigation closes with Escape and returns keyboard focus", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith("mobile"), "Mobile interaction contract");
+  await page.goto("/");
+
+  const toggle = page.locator(".menu-toggle");
+  await toggle.focus();
+  await page.keyboard.press("Enter");
   await expect(toggle).toHaveAttribute("aria-expanded", "true");
   await expect(page.getByRole("link", { name: "Home" }).last()).toBeFocused();
 
