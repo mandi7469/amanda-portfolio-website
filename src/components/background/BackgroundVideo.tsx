@@ -1,15 +1,42 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 const BACKGROUND_VIDEO_PLAYBACK_RATE = 0.8;
 const STALLED_PLAYBACK_GRACE_MS = 1_500;
+const MOBILE_QUERY = "(max-width: 640px)";
+const TABLET_QUERY = "(max-width: 1100px)";
+
+function getVideoSource() {
+  if (window.matchMedia(MOBILE_QUERY).matches) return "/media/smoke-mobile.mp4";
+  if (window.matchMedia(TABLET_QUERY).matches) return "/media/smoke-tablet.mp4";
+  return "/media/smoke-desktop.mp4";
+}
+
+function subscribeToVideoSource(onChange: () => void) {
+  const queries = [MOBILE_QUERY, TABLET_QUERY].map((query) => window.matchMedia(query));
+  queries.forEach((query) => query.addEventListener("change", onChange));
+  return () => queries.forEach((query) => query.removeEventListener("change", onChange));
+}
+
+// Wait for the real viewport instead of preloading a desktop file on phones.
+function getServerVideoSource() {
+  return undefined;
+}
 
 function setPlaybackRate(video: HTMLVideoElement | null) {
   if (video) video.playbackRate = BACKGROUND_VIDEO_PLAYBACK_RATE;
 }
 
 export function BackgroundVideo() {
+  const source = useSyncExternalStore(subscribeToVideoSource, getVideoSource, getServerVideoSource);
+
+  // An explicit src avoids Safari's inconsistent selection of <source media>.
+  // Reset playback recovery state when rotation selects a different file.
+  return <BackgroundVideoPlayer key={source} source={source} />;
+}
+
+function BackgroundVideoPlayer({ source }: { source: string | undefined }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playbackAttemptRef = useRef(0);
   const stalledPlaybackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -109,6 +136,7 @@ export function BackgroundVideo() {
       <video
         key={videoGeneration}
         ref={captureVideo}
+        src={source}
         autoPlay
         muted
         loop
@@ -124,19 +152,7 @@ export function BackgroundVideo() {
         onLoadedMetadata={(event) => {
           setPlaybackRate(event.currentTarget);
         }}
-      >
-        <source
-          src="/media/smoke-mobile.mp4"
-          type="video/mp4"
-          media="(max-width: 640px)"
-        />
-        <source
-          src="/media/smoke-tablet.mp4"
-          type="video/mp4"
-          media="(max-width: 1100px)"
-        />
-        <source src="/media/smoke-desktop.mp4" type="video/mp4" />
-      </video>
+      />
     </div>
   );
 }
