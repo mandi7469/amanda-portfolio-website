@@ -1,12 +1,35 @@
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, vi } from "vitest";
 import { BackgroundVideo } from "./BackgroundVideo";
 
 describe("BackgroundVideo", () => {
   let play: ReturnType<typeof vi.spyOn>;
+  let viewportWidth: number;
+  let mediaQueries: Map<string, MediaQueryList>;
+
+  function resizeViewport(width: number) {
+    act(() => {
+      viewportWidth = width;
+      mediaQueries.forEach((query) => query.dispatchEvent(new Event("change")));
+    });
+  }
 
   beforeEach(() => {
     play = vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
+    viewportWidth = 1440;
+    mediaQueries = new Map();
+    vi.spyOn(window, "matchMedia").mockImplementation((media) => {
+      if (!mediaQueries.has(media)) {
+        const query = Object.assign(new EventTarget(), { media });
+        // Keep matches live as the simulated viewport changes.
+        Object.defineProperty(query, "matches", {
+          get: () => viewportWidth <= Number(media.match(/\d+/)?.[0]),
+        });
+        mediaQueries.set(media, query as MediaQueryList);
+      }
+      return mediaQueries.get(media)!;
+    });
   });
 
   afterEach(() => {
@@ -14,21 +37,52 @@ describe("BackgroundVideo", () => {
     vi.restoreAllMocks();
   });
 
-  it("uses silent responsive sources and a static poster", () => {
+  it("uses one explicit silent video URL and a static poster", () => {
     const { container } = render(<BackgroundVideo />);
     const video = container.querySelector("video");
-    const sources = Array.from(container.querySelectorAll("source"));
 
     expect(video).toHaveAttribute("autoplay");
     expect(video).toHaveAttribute("loop");
     expect(video).toHaveProperty("muted", true);
     expect(video).toHaveAttribute("playsinline");
     expect(video).toHaveAttribute("poster", "/media/smoke-poster.webp");
-    expect(sources.map((source) => source.getAttribute("src"))).toEqual([
-      "/media/smoke-mobile.mp4",
-      "/media/smoke-tablet.mp4",
-      "/media/smoke-desktop.mp4",
-    ]);
+    expect(video).toHaveAttribute("src", "/media/smoke-desktop.mp4");
+    expect(container.querySelectorAll("source")).toHaveLength(0);
+  });
+
+  it.each([
+    [402, "mobile"], [640, "mobile"], [641, "tablet"],
+    [834, "tablet"], [1100, "tablet"], [1101, "desktop"],
+  ])("selects the %s px viewport's %s URL directly", (width, variant) => {
+    viewportWidth = Number(width);
+    const { container } = render(<BackgroundVideo />);
+    expect(container.querySelector("video")).toHaveAttribute("src", `/media/smoke-${variant}.mp4`);
+  });
+
+  it("does not advertise a wrong-sized download before hydration", () => {
+    const html = renderToString(<BackgroundVideo />);
+    expect(html).toContain("/media/smoke-poster.webp");
+    expect(html).not.toContain(".mp4");
+  });
+
+  it("changes source on rotation, but leaves playback alone within a breakpoint", () => {
+    viewportWidth = 402;
+    const { container } = render(<BackgroundVideo />);
+    const portraitVideo = container.querySelector("video");
+    resizeViewport(430);
+    expect(container.querySelector("video")).toBe(portraitVideo);
+    fireEvent.error(portraitVideo!);
+
+    resizeViewport(750);
+    const landscapeVideo = container.querySelector("video");
+    expect(landscapeVideo).not.toBe(portraitVideo);
+    expect(landscapeVideo).toHaveAttribute("src", "/media/smoke-tablet.mp4");
+    expect(landscapeVideo).not.toHaveAttribute("data-playback-failed");
+
+    resizeViewport(1194);
+    expect(container.querySelector("video")).toHaveAttribute("src", "/media/smoke-desktop.mp4");
+    resizeViewport(402);
+    expect(container.querySelector("video")).toHaveAttribute("src", "/media/smoke-mobile.mp4");
   });
 
   it("sets a calmer playback speed when the video mounts", () => {
