@@ -18,19 +18,39 @@ export function Navbar() {
       .map(({ href }) => document.querySelector<HTMLElement>(href))
       .filter((section): section is HTMLElement => Boolean(section));
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!sections.length) return;
 
-        if (visible?.target.id) setActiveId(visible.target.id);
-      },
-      { rootMargin: "-20% 0px -65%", threshold: [0.05, 0.25, 0.5] },
-    );
+    let scrollFrame: number | undefined;
+    const updateActiveSection = () => {
+      scrollFrame = undefined;
+      const activationLine = window.innerHeight * 0.35;
+      const atPageBottom = window.scrollY > 0
+        && Math.ceil(window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight;
+      let activeSection = sections[0];
 
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+      // A short final section may never reach the activation line before scrolling stops.
+      if (atPageBottom) {
+        activeSection = sections[sections.length - 1];
+      } else {
+        for (const section of sections) {
+          if (section.getBoundingClientRect().top <= activationLine) activeSection = section;
+        }
+      }
+
+      setActiveId(activeSection.id);
+    };
+    const scheduleUpdate = () => {
+      if (scrollFrame === undefined) scrollFrame = window.requestAnimationFrame(updateActiveSection);
+    };
+
+    scheduleUpdate();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    return () => {
+      if (scrollFrame !== undefined) window.cancelAnimationFrame(scrollFrame);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+    };
   }, []);
 
   useEffect(() => {

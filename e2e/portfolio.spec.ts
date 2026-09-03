@@ -1,6 +1,14 @@
 import { expect, test } from "@playwright/test";
 
 const sectionIds = ["home", "skills", "projects", "experience", "contact"];
+const contactNavigationViewports = [
+  { width: 1440, height: 1000 },
+  { width: 1366, height: 1024 },
+  { width: 1024, height: 1366 },
+  { width: 820, height: 1180 },
+  { width: 768, height: 1024 },
+  { width: 390, height: 844 },
+];
 
 test("renders the complete one-page portfolio without horizontal overflow", async ({ page }) => {
   await page.goto("/");
@@ -640,6 +648,53 @@ test("mobile navigation closes with Escape and returns keyboard focus", async ({
   await page.keyboard.press("Escape");
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
   await expect(toggle).toBeFocused();
+});
+
+test("tracks the active section when scrolling to and away from Contact", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium", "Runs exact responsive viewports once");
+
+  for (const viewport of contactNavigationViewports) {
+    await page.setViewportSize(viewport);
+    await page.goto("/#experience");
+    const contactLink = page.locator('.desktop-nav-list a[href="#contact"]');
+
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+
+    await expect(contactLink).toHaveAttribute("aria-current", "page");
+
+    await page.mouse.wheel(0, -Math.round(viewport.height / 2));
+
+    await expect(page.locator('.desktop-nav-list a[href="#experience"]')).toHaveAttribute("aria-current", "page");
+    await expect(contactLink).not.toHaveAttribute("aria-current");
+  }
+});
+
+test("marks Contact active when its navigation link is clicked", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium", "Runs exact responsive viewports once");
+
+  for (const viewport of contactNavigationViewports) {
+    await page.setViewportSize(viewport);
+    await page.goto("/#experience");
+    await page.locator("#experience").evaluate((section) => {
+      document.documentElement.style.scrollBehavior = "auto";
+      section.scrollIntoView({ block: "start" });
+      document.documentElement.style.removeProperty("scroll-behavior");
+    });
+    const menuIsCollapsed = viewport.width <= 820;
+    if (menuIsCollapsed) await page.locator(".menu-toggle").click();
+    const contactLink = page.locator(`${menuIsCollapsed ? "#mobile-navigation" : ".desktop-nav-list"} a[href="#contact"]`).first();
+
+    await contactLink.click();
+
+    await expect(page).toHaveURL(/#contact$/);
+    await expect(contactLink).toHaveAttribute("aria-current", "page");
+  }
+});
+
+test("marks Contact active when loading its hash directly", async ({ page }) => {
+  await page.goto("/#contact");
+
+  await expect(page.locator('.desktop-nav-list a[href="#contact"]')).toHaveAttribute("aria-current", "page");
 });
 
 test("reduced motion replaces the video with its static poster", async ({ page }) => {
